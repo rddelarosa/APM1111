@@ -4,7 +4,7 @@ author: "Roland Dela Rosa"
 date: "November 26, 2025"
 output:
   md_document
-subtitle: "**Github Link: https://github.com/rddelarosa/APM1111/blob/main/FA8_Stats/FA8_DELA-ROSA,-R?plain=1**"
+subtitle: "**Github Link: https://github.com/rddelarosa/APM1111/blob/main/FA8_Stats/FA8_DELA-ROSA%2C-R.Rmd**"
 ---
 
 ```{r setup, include=FALSE}
@@ -16,13 +16,7 @@ library(knitr)
 library(gghalves)
 
 data("PlantGrowth")
-
 ```
-
-
-# SECTION 1: INTRODUCTION
-
-Introduction
 
 This report performs a complete data analysis for the PlantGrowth dataset using a one-way ANOVA (1B).
 
@@ -30,9 +24,7 @@ Null Hypothesis ($H_0$): There is no significant difference on weight between tr
 
 Alternative Hypothesis ($H_a$): At least one group mean is different.
 
-Dataset and Problem
-
-The PlantGrowth dataset contains results from an experiment to compare yields (as measured by dried weight of plants) obtained under a control and two different treatment conditions.
+# Dataset and Problem
 
 Dependent Variable: weight (continuous)
 
@@ -40,11 +32,11 @@ Independent Variable: group (categorical: ctrl, trt1, trt2)
 
 Checking of Assumptions
 
-Assumption 1-3: Study Design
+# Assumption 1-3: Study Design
 
 The dependent variable is continuous, the independent variable consists of categorical groups, and observations are independent.
 
-Assumption 4: Outliers
+# Assumption 4: Outliers
 
 We check for significant outliers using boxplots and the Interquartile Range (IQR) method.
 
@@ -53,7 +45,6 @@ We check for significant outliers using boxplots and the Interquartile Range (IQ
 ```{r}
 ggplot(PlantGrowth, aes(x = group, y = weight, fill = group)) +
   
-  # 1. Half-Violin (Cloud) - nudged LEFT
   geom_half_violin(
     aes(fill = group),
     side = "r",
@@ -63,7 +54,6 @@ ggplot(PlantGrowth, aes(x = group, y = weight, fill = group)) +
     position = position_nudge(x = 0.15)
   ) +
   
-  # 2. Boxplot - nudged RIGHT
   geom_boxplot(
     width = 0.2,
     alpha = 0.5,
@@ -72,7 +62,6 @@ ggplot(PlantGrowth, aes(x = group, y = weight, fill = group)) +
     show.legend = FALSE
   ) +
   
-  # 3. Jittered raw points (Rain) - centered
   geom_jitter(
     aes(color = group),
     width = 0.10,
@@ -80,7 +69,6 @@ ggplot(PlantGrowth, aes(x = group, y = weight, fill = group)) +
     alpha = 0.7
   ) +
   
-  # 4. Styling
   theme_classic(base_size = 14) +
   labs(
     title = "Raincloud Plot: PlantGrowth Weight by Group",
@@ -89,12 +77,10 @@ ggplot(PlantGrowth, aes(x = group, y = weight, fill = group)) +
   ) +
   guides(fill = "none", color = "none") +
   
-  # 5. Extra spacing so elements do not overlap or get cut
   scale_x_discrete(expand = expansion(mult = c(0.25, 0.25))) +
   coord_cartesian(clip = "off")
 ```
-
-
+```{r}
 # Identify outliers mathematically
 outliers <- PlantGrowth %>%
   group_by(group) %>%
@@ -107,14 +93,11 @@ if(nrow(outliers) > 0){
   print("No extreme outliers were detected.")
 }
 ```
+
 Remark: Visual inspection of boxplots and statistical checks show no extreme outliers.
 
-Assumption 5: Normality
-
+# Assumption 5: Normality
 We use the Shapiro-Wilk test to check if data is normally distributed for each group ($p > 0.05$).
-
-
-
 ```{r}
 # Shapiro-Wilk test
 shapiro_res <- PlantGrowth %>%
@@ -123,13 +106,9 @@ shapiro_res <- PlantGrowth %>%
 
 kable(shapiro_res, caption = "Shapiro-Wilk Test for Normality")
 ```
-
-
 Remark: The $p$-values for all groups are greater than 0.05. We assume the data is approximately normally distributed.
 
-
-Assumption 6: Homogeneity of Variances
-
+# Assumption 6: Homogeneity of Variances
 We use Levene's test to check if variances are equal across groups ($p > 0.05$).
 
 ```{r}
@@ -138,15 +117,10 @@ levene_res <- leveneTest(weight ~ group, data = PlantGrowth)
 kable(levene_res, caption = "Levene's Test for Homogeneity of Variances")
 ```
 
-
 Remark: The $p$-value is r round(levene_res$"Pr(>F)"[1], 3), which is > 0.05. Therefore, we assume homogeneity of variances.
 
 
 Computation: One-Way ANOVA
-
-
-
-
 ```{r}
 # Compute ANOVA
 anova_model <- aov(weight ~ group, data = PlantGrowth)
@@ -155,7 +129,7 @@ anova_summary <- summary(anova_model)
 # Show ANOVA Table
 anova_summary
 ```
-Descriptive Statistics
+# Descriptive Statistics
 
 ```{r}
 # Calculate Mean and SD for reporting
@@ -176,7 +150,7 @@ tukey_res
 # Plotting the differences
 plot(tukey_res)
 ```
-Reporting (APA Style)
+# Report
 
 A one-way ANOVA was conducted to determine if there were significant differences in plant weight between three groups: ctrl ($n=10$), trt1 ($n=10$), and trt2 ($n=10$).
 
@@ -189,9 +163,3 @@ Weight increased from the trt1 group ($M = 4.66, SD = 0.79$) to the ctrl group (
 Tukey post hoc analysis revealed that the mean increase from trt1 to trt2 (0.87) was statistically significant ($p = .012$). However, the comparisons between ctrl vs trt1 ($p = .391$) and ctrl vs trt2 ($p = .198$) were not statistically significant.
 
 Conclusion: We reject the null hypothesis. There is a significant difference in weight between the treatment groups, specifically between Treatment 1 and Treatment 2.
-
-
-
-
-
-
