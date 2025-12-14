@@ -1,0 +1,91 @@
+---
+title: "SA2-DELA ROSA, R"
+author: "Roland Dela Rosa"
+date: "`r Sys.Date()`"
+output: md_document
+subtitle: "**Github Link: 
+https://github.com/rddelarosa/APM1111/blob/main/SA2/DELA%20ROSA%2C%20R-SA2.Rmd**"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(car) # For Levene's test and Anova()
+```
+
+```{r}
+
+# Load the Data
+df <- read.csv("Alzheimers Mice Data.csv")
+
+df$AD_Status <- as.factor(df$AD_Status)
+df$Treatment <- as.factor(df$Treatment)
+
+# Check the structure to ensure conversion worked
+str(df)
+```
+
+```{r}
+
+# Descriptive Statistics
+summary_stats <- df %>%
+  group_by(AD_Status, Treatment) %>%
+summarise(
+  Mean_Memory = mean(Memory),
+  SD_Memory = sd(Memory),
+  Mean_Training = mean(Training),
+  Count = n(),
+  .groups = "drop"
+)
+print(summary_stats)
+```
+
+```{r}
+#  Visualization (Boxplot)
+ggplot(df, aes(x = Treatment, y = Memory, fill = AD_Status)) +
+  geom_boxplot() +
+  labs(title = "Effect of Treatment and AD Status on Memory",
+       x = "Treatment Type",
+       y = "Memory Score") +
+  theme_minimal()
+```
+
+```{r}
+
+# Homogeneity of Variance (Levene's Test)
+leveneTest(Memory ~ AD_Status * Treatment, data = df)
+
+options(contrasts = c("contr.sum", "contr.poly"))
+anova_model <- aov(Memory ~ AD_Status * Treatment, data = df)
+shapiro.test(residuals(anova_model))
+
+qqnorm(residuals(anova_model))
+qqline(residuals(anova_model))
+
+```
+
+```{r}
+Anova(anova_model, type = "III")
+TukeyHSD(anova_model, which = "Treatment")
+
+```
+
+A two-way analysis of variance (ANOVA) was conducted to examine the effects of Alzheimer’s disease status (AD vs. non-AD) and treatment condition (four levels) on memory performance.
+
+There was a significant main effect of AD status on memory scores,
+F(1, 32) = 75.31, p < .001, indicating that mice with Alzheimer’s disease differed significantly in memory performance compared to non-AD mice.
+
+The main effect of treatment was not significant,
+F(3, 32) = 1.92, p = .146, suggesting that memory scores did not differ significantly across the four treatment conditions.
+
+The interaction between AD status and treatment was also not significant,
+F(3, 32) = 1.15, p = .344, indicating that the effect of treatment on memory performance did not depend on Alzheimer’s disease status.
+
+Because the main effect of treatment was not significant, post hoc Tukey HSD tests revealed no significant pairwise differences between treatment groups.
+
